@@ -1,10 +1,10 @@
 import sys, pygame
+import random as rdm
 pygame.init()
 
 # Constants
 node_radius = 5
 edge_width = 3
-node_color = 1, 84, 143
 edge_color = 0, 0, 0
 obstacle_color = 0, 0, 0
 
@@ -15,7 +15,7 @@ white = 255, 255, 255
 screen = pygame.display.set_mode(size)
 
 def draw_node(node):
-    pygame.draw.circle(screen, node_color, node.pos, node_radius)
+    pygame.draw.circle(screen, node.color, node.pos, node_radius)
 
 def draw_edge(start, end):
     pygame.draw.line(screen, edge_color, start.pos, end.pos, edge_width)

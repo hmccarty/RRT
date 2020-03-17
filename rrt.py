@@ -16,6 +16,7 @@ def dist(start, end):
 class Node:
     def __init__(self, x, y):
         self.pos = x, y
+        self.color = rdm.randint(0, 255), rdm.randint(0, 255), rdm.randint(0, 255)
         self.children = []
     
     def add_child(self, child):
