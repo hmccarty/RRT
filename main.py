@@ -6,7 +6,8 @@ EDGE_WIDTH = 3
 EDGE_COLOR = 0, 0, 0
 START_NODE_COLOR = 0, 155, 155
 END_NODE_COLOR = 155, 0, 0
-PATH_COLOR = 20, 20, 20
+GOAL_COLOR = 0, 200, 0, 50
+PATH_COLOR = 155, 0, 0
 PATH_NODE_RADIUS = 10
 PATH_WIDTH = 5
 
@@ -21,19 +22,20 @@ background_image = pygame.image.load(file_name).convert()
 
 def plot_graph(graph):
     screen.blit(background_image, [0, 0])
-
+    
+    draw_goal(graph.goal)
     plot_node(graph.root)
-
+    
     pygame.display.flip()
 
 def plot_path(graph):
-    if graph.goal_node is None:
+    if graph.end_node is None:
         return
 
-    inactive_path = [graph.goal_node]
+    inactive_path = [graph.end_node]
     active_path = []
 
-    node = graph.goal_node.prev_node
+    node = graph.end_node.prev_node
     while True:
         inactive_path.insert(0, node)
         if node.prev_node is None:
@@ -41,14 +43,17 @@ def plot_path(graph):
         node = node.prev_node
     
     screen.blit(background_image, [0, 0])
+    draw_goal(graph.goal)
     plot_node(graph.root)
-    draw_circle(START_NODE_COLOR, node.pos, PATH_NODE_RADIUS)
+    start_pos = node.pos
+    draw_circle(START_NODE_COLOR, start_pos, PATH_NODE_RADIUS)
     pygame.display.flip()
 
     while inactive_path:
         screen.blit(background_image, [0, 0])
+        draw_goal(graph.goal)
         plot_node(graph.root)
-        draw_circle(START_NODE_COLOR, node.pos, PATH_NODE_RADIUS)
+        draw_circle(START_NODE_COLOR, start_pos, PATH_NODE_RADIUS)
         
         active_path.append(inactive_path.pop(0))
 
@@ -57,7 +62,7 @@ def plot_path(graph):
                 draw_path(node.prev_node, node)
 
         pygame.display.flip()
-        time.sleep(1)
+        time.sleep(0.5)
 
 def plot_node(node):
     for child in node.children:
@@ -75,6 +80,9 @@ def draw_edge(start, end):
 def draw_path(start, end):
     pygame.draw.line(screen, PATH_COLOR, start.pos, end.pos, PATH_WIDTH)
 
+def draw_goal(goal):
+    draw_circle(GOAL_COLOR, (goal[0], goal[1]), goal[2])
+
 def draw_circle(color, pnt, radius):
     pygame.draw.circle(screen, color, pnt, radius)
 
@@ -85,9 +93,8 @@ if __name__ == "__main__":
     for x in range(750):
         plot_graph(graph)
         graph.add_node()
+        if graph.end_node is not None:
+            break
 
     graph.find_path()
     plot_path(graph)
-
-
-

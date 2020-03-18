@@ -20,7 +20,7 @@ class Node:
         self.children.append(child)
     
 class Graph:
-    def __init__(self, root, step_size, obstacle_map, width, height):
+    def __init__(self, root, step_size, obstacle_map, width, height, goal=None):
         self.root = root
 
         # Max distance between any two nodes
@@ -31,10 +31,16 @@ class Graph:
         self.height = height
         
         # Represents the node closest to reaching the goal
-        self.goal_node = None
+        self.end_node = None
 
-        # Represents the coordinate of the given goal
-        self.goal_pnt = None
+        # Represents the coordinates of the given goal
+        self.goal = goal
+
+        if self.goal is None:
+            dest_x = rdm.randint(0, self.width)
+            dest_y = rdm.randint(0, self.height)
+            dest_radius = 25
+            self.goal = (dest_x, dest_y, dest_radius)
 
     def distance(self, start, end):
         """ Finds the euclidean distance between two points """
@@ -63,6 +69,12 @@ class Graph:
         self.closest_node = self.root
         
         self.check_distance(self.root, pnt)
+
+    def reached_goal(self, pnt):
+        x_comp = math.pow(pnt[0] - self.goal[0], 2)
+        y_comp = math.pow(pnt[1] - self.goal[1], 2)
+
+        return math.sqrt(x_comp + y_comp) <= self.goal[2]
 
     def add_node(self):
         """ Uses RRT to define another point within the map """
@@ -109,28 +121,24 @@ class Graph:
         y = init_y + int(mag * math.sin(angle))
 
         collision = False
-        for i in range(mag):
+        for i in range(mag + 1):
             inner_x = init_x + int(i * math.cos(angle))
             inner_y = init_y + int(i * math.sin(angle))
             if (inner_x >= self.width) or (inner_x < 0):
-                collision = True 
-                break
+                return
             elif (inner_y >= self.height) or (inner_y < 0):
-                collision = True
-                break
+                return
             elif self.map[inner_x, inner_y] == (0, 0, 0):
-                collision = True
-                break
-
-        if not collision:
-            parent_node.add_child(Node(x, y))
+                return
+            elif self.reached_goal((inner_x, inner_y)):
+                self.end_node = Node(inner_x, inner_y)
+                parent_node.add_child(self.end_node)
+                return
+        
+        parent_node.add_child(Node(x, y))
 
     def find_path(self):
         """ Searches the graph to find the shortest path to the goal """
-        dest_x = rdm.randint(0, self.width)
-        dest_y = rdm.randint(0, self.height)
-        dest = (dest_x, dest_y)
-        self.goal_pnt = dest
         
         open_set = [self.root]
         closed_set = []
@@ -138,8 +146,11 @@ class Graph:
 
         while open_set:
             current = min(open_set, key=lambda node: node.g_score + node.heuristic) 
-            if self.distance(current.pos, dest) < 20:
-                self.goal_node = current
+            if self.end_node is None: 
+                if self.distance(current.pos, self.goal) < 20:
+                    self.end_node = current
+                    break
+            elif self.end_node == current:
                 break
 
             open_set.remove(current)
@@ -157,7 +168,7 @@ class Graph:
                     continue
                 
                 child.g_score = current.g_score + self.distance(current.pos, child.pos)
-                child.heuristic = self.distance(child.pos, dest)
+                child.heuristic = self.distance(child.pos, self.goal)
                 child.prev_node = current
                 open_set.append(child)
 
