@@ -96,5 +96,3 @@ if __name__ == "__main__":
         if graph.end_node is not None:
             break
 
-    graph.find_path()
-    plot_path(graph)
