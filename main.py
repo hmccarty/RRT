@@ -1,4 +1,4 @@
-import rrt, sys, pygame, time
+import rrt, sys, pygame, time, math
 from PIL import Image
 
 COLOR_NODES = False
@@ -46,10 +46,23 @@ def plot_path(graph):
 
     for node in path:
         if node.prev_node is not None:
-            draw_path(node.prev_node, node)
-
-        pygame.display.update()
-        time.sleep(0.5)
+            x_diff = node.pos[0] - node.prev_node.pos[0]
+            y_diff = node.pos[1] - node.prev_node.pos[1]
+            last_x = node.prev_node.pos[0]
+            last_y = node.prev_node.pos[1]
+            angle = math.atan2(y_diff, x_diff)
+            distance = int(math.sqrt(math.pow(x_diff,2) + math.pow(y_diff,2)))
+            step = distance / 3
+            for i in range(3):
+                x = last_x + int(step * math.cos(angle))
+                y = last_y + int(step * math.sin(angle))
+                draw_path((last_x, last_y), (x, y))
+                last_x = x
+                last_y = y
+                pygame.display.flip()
+                time.sleep(0.03)
+            draw_path((last_x, last_y), node.pos)
+            pygame.display.update()
 
 def draw_node(node):
     pygame.draw.circle(screen, node.color, node.pos, NODE_RADIUS)
@@ -58,7 +71,7 @@ def draw_edge(start, end):
     pygame.draw.line(screen, EDGE_COLOR, start.pos, end.pos, EDGE_WIDTH)
 
 def draw_path(start, end):
-    pygame.draw.line(screen, PATH_COLOR, start.pos, end.pos, PATH_WIDTH)
+    pygame.draw.line(screen, PATH_COLOR, start, end, PATH_WIDTH)
 
 def draw_goal(goal):
     draw_circle(GOAL_COLOR, (goal[0], goal[1]), goal[2])
@@ -71,6 +84,8 @@ graph = rrt.Graph(root, 50, PIL_image.load(), PIL_image.size[0], PIL_image.size[
 
 screen.blit(background_image, [0, 0])
 draw_goal(graph.goal)
+pygame.display.update()
+time.sleep(10)
 while 1:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
@@ -78,7 +93,8 @@ while 1:
     while not graph.reached_goal(graph.last_child_node.pos):
         graph.add_node() 
         plot_node(graph)
+        time.sleep(0.005)
 
         if graph.reached_goal(graph.last_child_node.pos):
             graph.find_path() 
-            plot_path(graph) 
+            plot_path(graph)

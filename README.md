@@ -5,7 +5,7 @@ This can then be used in combination with algorithms like A* to plan out paths f
 
 Here is an example of where my test is at right now:
 
-![RRT Example](example.gif)
+![RRT Example](examples/example-03.gif)
 
 As you can see, in under 2000 nodes it builds out a tree that mostly covers the map and avoids obstacles. It then picks a random point, then draws out the fastest path from the origin to the chosen goal.
 There is still a lot of work to be done for this to be functional or useful, but it's a great tool for learning!
