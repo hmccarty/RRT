@@ -1,4 +1,3 @@
-import visualizer as vis 
 import random as rdm
 import pygame, time, math
 
