@@ -28,13 +28,14 @@ class Graph:
         self.map = obstacle_map
         self.width = width
         self.height = height
+       
+        # Stores the last nodes added
+        self.last_child_node = root
+        self.last_parent_node = None
         
-        # Represents the node closest to reaching the goal
-        self.end_node = None
-
-        # Represents the coordinates of the given goal
         self.goal = goal
 
+        # If no goal is set, create a one at a random point
         if self.goal is None:
             dest_x = rdm.randint(0, self.width)
             dest_y = rdm.randint(0, self.height)
@@ -130,11 +131,18 @@ class Graph:
             elif self.map[inner_x, inner_y] == (0, 0, 0):
                 return
             elif self.reached_goal((inner_x, inner_y)):
-                self.end_node = Node(inner_x, inner_y)
-                parent_node.add_child(self.end_node)
+                child_node = Node(inner_x, inner_y)
+                parent_node.add_child(child_node)
+
+                self.last_child_node = child_node
+                self.last_parent_node = parent_node
                 return
         
-        parent_node.add_child(Node(x, y))
+        child_node = Node(x, y)   
+        parent_node.add_child(child_node)
+
+        self.last_child_node = child_node
+        self.last_parent_node = parent_node
 
     def find_path(self):
         """ Searches the graph to find the shortest path to the goal """
@@ -145,11 +153,13 @@ class Graph:
 
         while open_set:
             current = min(open_set, key=lambda node: node.g_score + node.heuristic) 
-            if self.end_node is None: 
+
+            # If last node added did not reach the goal
+            if not self.reached_goal(self.last_child_node.pos): 
                 if self.distance(current.pos, self.goal) < 20:
-                    self.end_node = current
+                    self.last_child_node = current
                     break
-            elif self.end_node == current:
+            elif self.last_child_node == current:
                 break
 
             open_set.remove(current)
