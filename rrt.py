@@ -7,7 +7,7 @@ class Node:
 
         # Assigns a random color to each Node
         self.color = rdm.randint(0, 255), rdm.randint(0, 255), rdm.randint(0, 255)
-
+        
         self.children = []
 
         # Values for A*
@@ -92,27 +92,7 @@ class Graph:
         x_diff = target_x - init_x 
         y_diff = target_y - init_y 
 
-        if x_diff == 0:
-            if y_diff > 0:
-                angle = math.pi / 2
-            else:
-                angle = 3 * math.pi / 2
-        elif y_diff == 0:
-            if x_diff > 0:
-                angle = 0
-            else:
-                angle = math.pi
-        else:
-            angle = math.atan(y_diff / x_diff)
-            if x_diff < 0:
-                if y_diff < 0:
-                    angle += 180
-                else:
-                    angle += 90
-            else:
-                if y_diff < 0:
-                    angle += 270
-        
+        angle = math.atan2(y_diff, x_diff)
         mag = self.step_size
         if self.distance(target, parent_node.pos) < mag:
             mag = int(self.distance(target, parent_node.pos))
