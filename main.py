@@ -1,7 +1,7 @@
 import rrt, sys, pygame, time, math
 from PIL import Image
 
-COLOR_NODES = False
+COLOR_NODES = True
 
 NODE_RADIUS = 4
 EDGE_WIDTH = 3
@@ -15,7 +15,7 @@ PATH_WIDTH = 5
 
 pygame.init()
 
-file_name = "test_map.png"
+file_name = "test_map_2.png"
 
 PIL_image = Image.open(file_name)
 
@@ -23,8 +23,10 @@ screen = pygame.display.set_mode(PIL_image.size)
 background_image = pygame.image.load(file_name).convert()
 
 def plot_node(graph):
-    draw_edge(graph.last_parent_node, graph.last_child_node)
-    draw_node(graph.last_child_node)
+    if graph.last_parent_node is not None: 
+        draw_edge(graph.last_parent_node, graph.last_child_node)
+    if COLOR_NODES:
+        draw_node(graph.last_child_node)
     pygame.display.update()
 
 def plot_path(graph):
@@ -85,7 +87,6 @@ graph = rrt.Graph(root, 50, PIL_image.load(), PIL_image.size[0], PIL_image.size[
 screen.blit(background_image, [0, 0])
 draw_goal(graph.goal)
 pygame.display.update()
-time.sleep(10)
 while 1:
     for event in pygame.event.get():
         if event.type == pygame.QUIT: sys.exit()
