@@ -15,8 +15,7 @@ PATH_WIDTH = 5
 
 pygame.init()
 
-file_name = "test_map_2.png"
-
+file_name = sys.argv[1]
 PIL_image = Image.open(file_name)
 
 screen = pygame.display.set_mode(PIL_image.size)
